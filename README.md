@@ -5,7 +5,7 @@
 Works only on <strong>windows</strong> as of now.
 
 <strong>Preview:</strong><br><br>
-<img src="https://raw.githubusercontent.com/tmepy/TIDAL-RPC/main/preview.png" alt="Preview">
+<img src="preview.png" alt="Preview">
 
 <strong>How it works:</strong>
 1. Fetches the process ids of programs run by the user (not services) using <a href="https://pypi.org/project/pywinauto/">pywinauto</a><br>
