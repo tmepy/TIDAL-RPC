@@ -35,7 +35,10 @@ def get_album_artwork(artist: str, song_name: str):
     sp = spotipy.Spotify(auth_manager=auth_manager)
 
     track = sp.search(q='artist:' + artist + ' track:' + song_name, type='track')
-    artwork = track['tracks']['items'][0]['album']['images'][0]['url']
+    try:
+        artwork = track['tracks']['items'][0]['album']['images'][0]['url']
+    except:
+        artwork = None
     return artwork
 
 
@@ -44,10 +47,14 @@ def start_rich_presence():
     client_id = env('DISCORD_CLIENT_ID')
     RPC = Presence(client_id)
     RPC.connect()
+    print('RPC ready and connected to discord.')
     start = int(time.time())
     while True:
         data = check_for_tidal()
         if data['open']:
+            if start is None:
+                start = int(time.time())
+                print('Detected tidal opening')
             if data['song_playing']:
                 if cache_song_playing == data['song_playing']:
                     pass
@@ -55,10 +62,17 @@ def start_rich_presence():
                     cache_song_playing = data['song_playing']
                     song_playing = data['song_playing'].split(' - ')[0]
                     artist = data['song_playing'].split(' - ')[1]
-                    RPC.update(large_image=get_album_artwork(artist, song_playing), state='by ' + artist, details=song_playing, start=start, large_text=song_playing + ' by ' + artist)
+                    album_artwork = get_album_artwork(artist, song_playing)
+                    if album_artwork is None:
+                        album_artwork = "tidal"
+                    RPC.update(large_image=album_artwork, state='by ' + artist, details=song_playing, start=start,
+                               large_text=song_playing + ' by ' + artist)
+                    print(f"Detected Song {song_playing}")
             else:
                 RPC.update(large_image='tidal', state='Tidal....', details='Just Browsing', start=start)
         else:
+            cache_song_playing = ''
+            start = None
             RPC.clear()
             pass
 
